@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { PrismaService } from 'src/prisma-client/prisma.service'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
@@ -43,13 +47,13 @@ export class AuthService {
     })
 
     if (!foundUser) {
-      throw new BadRequestException('Invalid email or password')
+      throw new UnauthorizedException('Invalid email or password')
     }
 
     const isMatched = Bcrypt.compareSync(dto.password, foundUser.password)
 
     if (!isMatched) {
-      throw new BadRequestException('Invalid email or password')
+      throw new UnauthorizedException('Invalid email or password')
     }
 
     const userJwtPayload: UserJwtPayload = {
