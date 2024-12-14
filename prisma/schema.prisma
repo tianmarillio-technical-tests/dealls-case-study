@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement()) @map("id")
+  email    String @unique @map("email")
+  password String @map("password")
+
+  // Relations
+  UserProfile UserProfile?
+  ViewLog     ViewLog[]
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Premium   Premium?
+
+  @@map("user")
+}
+
+model UserProfile {
+  id Int @id @default(autoincrement()) @map("id")
+
+  fullName          String @map("full_name")
+  age               String @map("age")
+  gender            String @map("gender")
+  description       String @map("description")
+  displayPictureUrl String @map("display_picture_url")
+
+  // Foreign Keys
+  userId Int @unique @map("user_id")
+
+  // Relations
+  User    User      @relation(references: [id], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+  ViewLog ViewLog[]
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_profile")
+}
+
+model ViewLog {
+  id Int @id @default(autoincrement()) @map("id")
+
+  // Foreign Keys 
+  userId              Int @map("user_id")
+  viewedUserProfileId Int @map("viewed_user_Profile_id")
+
+  // Relations
+  User              User        @relation(references: [id], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+  ViewedUserProfile UserProfile @relation(fields: [viewedUserProfileId], references: [id])
+  SwapLog           SwapLog?
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("view_log")
+}
+
+model SwapLog {
+  id     Int            @id @default(autoincrement()) @map("id")
+  action SwapActionEnum @map("action")
+
+  // Foreign Keys  
+  viewLogId Int @unique @map("view_log_id")
+
+  // Relations
+  ViewLog ViewLog? @relation(fields: [viewLogId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("swap_log")
+}
+
+model Premium {
+  id            Int     @id @default(autoincrement()) @map("id")
+  unlimitedSwap Boolean @default(false) @map("unlimited_swap")
+  verifiedLabel Boolean @default(false) @map("verified_label")
+
+  // Foreign Keys 
+  userId Int @unique @map("user_id")
+
+  // Relations
+  User User @relation(references: [id], fields: [userId], onUpdate: Cascade, onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("premium")
+}
+
+enum SwapActionEnum {
+  dislike
+  like
+
+  @@map("swap_action_enum")
+}
