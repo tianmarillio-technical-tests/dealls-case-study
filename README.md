@@ -48,6 +48,12 @@ npx prisma generate
 npx tsx prisma/seeders/001_users.ts
 ```
 
+## Start Development Server
+
+```
+npm run dev
+```
+
 ## API Documentation & Playground for Manual Testing (Swagger)
 
 After the development server running, we can access the Swagger API Documentation (Postman-like documentation) at:
